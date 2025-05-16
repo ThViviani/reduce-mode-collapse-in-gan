@@ -46,6 +46,8 @@ class AdversarialTraining(L.LightningModule):
                 betas=self.opt.betas
             )
             optimizers.append(ae_optimizer)
+        else:
+            optimizers.append(None)
         
         crititc_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.opt.lr, betas=self.opt.betas)
         optimizers.append(crititc_optimizer)
