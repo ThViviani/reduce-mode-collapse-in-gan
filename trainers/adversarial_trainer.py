@@ -46,8 +46,6 @@ class AdversarialTraining(L.LightningModule):
                 betas=self.opt.betas
             )
             optimizers.append(ae_optimizer)
-        else:
-            optimizers.append(None)
         
         crititc_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.opt.lr, betas=self.opt.betas)
         optimizers.append(crititc_optimizer)
@@ -111,7 +109,11 @@ class AdversarialTraining(L.LightningModule):
         pass
 
     def training_step(self, batch, batch_idx):
-        ae_optimizer, critic_optimizer, generator_optimizer = self.optimizers()
+        optimizers = self.optimizers()
+        if self.encoder is not None:
+            ae_optimizer = optimizers.pop(0)
+        critic_optimizer, generator_optimizer = optimizers
+        
         x_real, _ = batch
         criterion = nn.BCEWithLogitsLoss()
         history = {}
