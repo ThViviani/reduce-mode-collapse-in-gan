@@ -38,10 +38,21 @@ class AdversarialTraining(L.LightningModule):
             nn.init.constant_(m.bias.data, 0)
 
     def configure_optimizers(self):
-        ae_optimizer = torch.optim.Adam(params=itertools.chain(self.encoder, self.generator), lr=self.opt.lr, betas=self.opt.betas)
+        optimizers = []
+        if self.encoder is not None:
+            ae_optimizer = torch.optim.Adam(
+                params=itertools.chain(self.encoder, self.generator), 
+                lr=self.opt.lr, 
+                betas=self.opt.betas
+            )
+            optimizers.append(ae_optimizer)
+        
         crititc_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.opt.lr, betas=self.opt.betas)
+        optimizers.append(crititc_optimizer)
+        
         generator_optimizer = torch.optim.Adam(self.generator.parameters(), lr=self.opt.lr, betas=self.opt.betas)
-        return [ae_optimizer, crititc_optimizer, generator_optimizer]
+        optimizers.append(generator_optimizer)
+        return optimizers
     
     def __log_images(self, n_generated_imgs: int = 32):    
         generated_imgs = self.generator(self.fixed_latents.to(self.device))
@@ -80,8 +91,12 @@ class AdversarialTraining(L.LightningModule):
     def _ae_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         return None
 
-    def _generator_step(self, x, optimizer, criterion, log_history):
-        pass
+    def _generator_step(self, x, optimizer, criterion):
+        optimizer.zero_grad()
+        gen_loss = self._generator_loss(x, criterion)
+        self.manual_backward(gen_loss)
+        optimizer.step()
+        return gen_loss
 
     def _critic_step(self, x, optimizer, criterion):
         optimizer.zero_grad()
@@ -90,7 +105,7 @@ class AdversarialTraining(L.LightningModule):
         optimizer.step()
         return critic_loss 
 
-    def _ae_step(self, x, optimizer, criterion, log_history):
+    def _ae_step(self, x, optimizer, criterion):
         pass
 
     def training_step(self, batch, batch_idx):
@@ -100,21 +115,14 @@ class AdversarialTraining(L.LightningModule):
         history = {}
 
         # AE stage
-        ae_loss = self._ae_loss(x_real, nn.MSELoss)
-        if ae_loss is not None:
-            pass
-        else:
-            ae_optimizer = None
+        if self.encoder is not None:
+            ae_loss = self._ae_step(x_real, ae_optimizer, nn.MSELoss)
+            history['loss_ae'] = ae_loss.item()
 
-        # Critic's train
         for _ in range(self.opt.n_critic_steps):
             critic_loss = self._critic_step(x_real, critic_optimizer, criterion)
 
-        # Generator's train
-        generator_optimizer.zero_grad()
-        gen_loss = self._generator_loss(x_real, criterion)
-        self.manual_backward(gen_loss)
-        generator_optimizer.step()
+        gen_loss = self._generator_step(x_real, generator_optimizer, criterion)
 
         history['loss_g'] = gen_loss.item()
         history['loss_d'] = critic_loss.item()
