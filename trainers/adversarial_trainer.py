@@ -13,8 +13,8 @@ class AdversarialTraining(L.LightningModule):
             self, 
             critic: nn.Module, 
             generator: nn.Module,
-            encoder: nn.Module, 
-            opt: TrainOptions,
+            encoder: nn.Module | None = None, 
+            opt: TrainOptions = TrainOptions(),
     ):
         super().__init__()
         
@@ -23,10 +23,10 @@ class AdversarialTraining(L.LightningModule):
         self.generator = generator
         self.encoder = encoder
         
-        self.critic.apply(self._initialize_weights)
-        self.generator.apply(self._initialize_weights)
-        self.encoder.apply(self._initialize_weights)
-
+        for net in (self.encoder, self.critic, self.generator):
+            if net is not None:
+                net.apply(self._initialize_weights)
+        
         self.opt = opt 
         self.fixed_latents = torch.randn(opt.batch_size, opt.latent_dim, 1, 1)
 
