@@ -71,15 +71,21 @@ class AdversarialTraining(L.LightningModule):
         self.__log_images()
 
     def __log_gradients(self):
+        grad_history = {}
+        
         g_grad = [p.grad.view(-1).cpu().numpy() for p in list(self.generator.parameters())]
         d_grad = [p.grad.view(-1).cpu().numpy() for p in list(self.critic.parameters())]
-        
-        grad_history = {
-            'g_grads_mean': np.concatenate(g_grad).mean().item(),
-            'g_grads_std': np.concatenate(g_grad).std().item(),
-            'd_grads_mean': np.concatenate(d_grad).mean(),
-            'd_grads_std': np.concatenate(d_grad).std()
-        }
+
+        if self.encoder is not None:
+            e_grad = [p.grad.view(-1).cpu().numpy() for p in list(self.encoder.parameters())]
+            grad_history['e_grads_mean'] = np.concatenate(e_grad).mean().item() 
+            grad_history['e_grads_std'] = np.concatenate(e_grad).std().item()
+   
+        grad_history['g_grads_mean'] = np.concatenate(g_grad).mean().item()
+        grad_history['g_grads_std'] = np.concatenate(g_grad).std().item()
+        grad_history['d_grads_mean'] = np.concatenate(d_grad).mean()
+        grad_history['d_grads_std'] = np.concatenate(d_grad).std()
+            
         self.log_dict(grad_history, prog_bar=True)
 
     def _critic_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
@@ -106,14 +112,18 @@ class AdversarialTraining(L.LightningModule):
         return critic_loss 
 
     def _ae_step(self, x, optimizer, criterion):
-        pass
+        optimizer.zero_grad()
+        ae_loss = self._ae_loss(x, criterion)
+        self.manual_backward(ae_loss)
+        optimizer.step()
+        return ae_loss
 
     def training_step(self, batch, batch_idx):
         optimizers = self.optimizers()
         if self.encoder is not None:
             ae_optimizer = optimizers.pop(0)
         critic_optimizer, generator_optimizer = optimizers
-        
+
         x_real, _ = batch
         criterion = nn.BCEWithLogitsLoss()
         history = {}
