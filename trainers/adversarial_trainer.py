@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torchvision.utils as vutils
 import numpy as np
+import itertools
 
 from utils.train_options import TrainOptions
 
@@ -11,16 +12,20 @@ class AdversarialTraining(L.LightningModule):
     def __init__(
             self, 
             critic: nn.Module, 
-            generator: nn.Module, 
+            generator: nn.Module,
+            encoder: nn.Module, 
             opt: TrainOptions,
     ):
         super().__init__()
+        
         self.automatic_optimization = False
         self.critic = critic
         self.generator = generator
+        self.encoder = encoder
         
         self.critic.apply(self._initialize_weights)
         self.generator.apply(self._initialize_weights)
+        self.encoder.apply(self._initialize_weights)
 
         self.opt = opt 
         self.fixed_latents = torch.randn(opt.batch_size, opt.latent_dim, 1, 1)
@@ -33,9 +38,10 @@ class AdversarialTraining(L.LightningModule):
             nn.init.constant_(m.bias.data, 0)
 
     def configure_optimizers(self):
+        ae_optimizer = torch.optim.Adam(params=itertools.chain(self.encoder, self.generator), lr=self.opt.lr, betas=self.opt.betas)
         crititc_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.opt.lr, betas=self.opt.betas)
         generator_optimizer = torch.optim.Adam(self.generator.parameters(), lr=self.opt.lr, betas=self.opt.betas)
-        return [crititc_optimizer, generator_optimizer]
+        return [ae_optimizer, crititc_optimizer, generator_optimizer]
     
     def __log_images(self, n_generated_imgs: int = 32):    
         generated_imgs = self.generator(self.fixed_latents.to(self.device))
@@ -71,17 +77,38 @@ class AdversarialTraining(L.LightningModule):
     def _generator_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         raise NotImplementedError
 
+    def _ae_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
+        return None
+
+    def _generator_step(self, x, optimizer, criterion, log_history):
+        pass
+
+    def _critic_step(self, x, optimizer, criterion):
+        optimizer.zero_grad()
+        critic_loss = self._critic_loss(x, criterion)
+        self.manual_backward(critic_loss)
+        optimizer.step()
+        return critic_loss 
+
+    def _ae_step(self, x, optimizer, criterion, log_history):
+        pass
+
     def training_step(self, batch, batch_idx):
-        critic_optimizer, generator_optimizer = self.optimizers()
+        ae_optimizer, critic_optimizer, generator_optimizer = self.optimizers()
         x_real, _ = batch
-        criterion = nn.BCEWithLogitsLoss() 
+        criterion = nn.BCEWithLogitsLoss()
+        history = {}
+
+        # AE stage
+        ae_loss = self._ae_loss(x_real, nn.MSELoss)
+        if ae_loss is not None:
+            pass
+        else:
+            ae_optimizer = None
 
         # Critic's train
         for _ in range(self.opt.n_critic_steps):
-            critic_optimizer.zero_grad()
-            critic_loss = self._critic_loss(x_real, criterion)
-            self.manual_backward(critic_loss)
-            critic_optimizer.step() 
+            critic_loss = self._critic_step(x_real, critic_optimizer, criterion)
 
         # Generator's train
         generator_optimizer.zero_grad()
@@ -89,10 +116,8 @@ class AdversarialTraining(L.LightningModule):
         self.manual_backward(gen_loss)
         generator_optimizer.step()
 
-        history = { 
-            'loss_g': gen_loss.item(), 
-            'loss_d': critic_loss.item(),
-        }
+        history['loss_g'] = gen_loss.item()
+        history['loss_d'] = critic_loss.item()
         
         self.log_dict(history, prog_bar=True)
         self.__log_gradients()
