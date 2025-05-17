@@ -41,7 +41,7 @@ class AdversarialTraining(L.LightningModule):
         optimizers = []
         if self.encoder is not None:
             ae_optimizer = torch.optim.Adam(
-                params=itertools.chain(self.encoder, self.generator), 
+                params=itertools.chain(self.encoder.parameters(), self.generator.parameters()), 
                 lr=self.opt.lr, 
                 betas=self.opt.betas
             )
