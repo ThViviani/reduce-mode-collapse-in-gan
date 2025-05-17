@@ -130,8 +130,10 @@ class AdversarialTraining(L.LightningModule):
 
         # AE stage
         if self.encoder is not None:
+            self.critic.freeze()
             ae_loss = self._ae_step(x_real, ae_optimizer, nn.MSELoss)
             history['loss_ae'] = ae_loss.item()
+            self.critic.unfreeze()
 
         for _ in range(self.opt.n_critic_steps):
             critic_loss = self._critic_step(x_real, critic_optimizer, criterion)
