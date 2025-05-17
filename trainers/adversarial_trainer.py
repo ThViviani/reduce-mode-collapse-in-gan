@@ -119,10 +119,10 @@ class AdversarialTraining(L.LightningModule):
         return ae_loss
 
     def training_step(self, batch, batch_idx):
-        optimizers = self.optimizers()
         if self.encoder is not None:
-            ae_optimizer = optimizers.pop(0)
-        critic_optimizer, generator_optimizer = optimizers
+          ae_optimizer, critic_optimizer, generator_optimizer = self.optimizers()
+        else:        
+          critic_optimizer, generator_optimizer = self.optimizers()
 
         x_real, _ = batch
         criterion = nn.BCEWithLogitsLoss()
@@ -131,7 +131,8 @@ class AdversarialTraining(L.LightningModule):
         # AE stage
         if self.encoder is not None:
             self.critic.freeze()
-            ae_loss = self._ae_step(x_real, ae_optimizer, nn.MSELoss)
+            ae_criterion = nn.MSELoss(reduction='mean')
+            ae_loss = self._ae_step(x_real, ae_optimizer, ae_criterion)
             history['loss_ae'] = ae_loss.item()
             self.critic.unfreeze()
 
