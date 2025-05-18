@@ -16,8 +16,8 @@ class RpGAN(AdversarialTraining):
         self,
         critic: nn.Module,
         generator: nn.Module,
-        encoder: nn.Module | None,
-        opt: TrainOptions,
+        encoder: nn.Module | None = None,
+        opt: TrainOptions = TrainOptions(),
         use_r1r2_penalty: bool = False,
     ):
         super().__init__(critic=critic, generator=generator, encoder=encoder, opt=opt)
