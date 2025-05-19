@@ -11,3 +11,4 @@ class TrainOptions:
     n_critic_steps: int = 1
     use_gp: bool = False
     gamma_gp: float = 1.
+    latent_distance_penalty: float = 1.
