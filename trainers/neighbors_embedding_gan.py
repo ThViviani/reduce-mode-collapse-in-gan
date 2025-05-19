@@ -41,6 +41,6 @@ class NeighborsEmbeddingMixin:
         return q_symmetric
 
 
-class DistVanilaGAN(NeighborsEmbeddingMixin, StandardGAN): pass
+class NEVanilaGAN(NeighborsEmbeddingMixin, StandardGAN): pass
 
-class DistRpGAN(NeighborsEmbeddingMixin, RpGAN): pass
+class NERpGAN(NeighborsEmbeddingMixin, RpGAN): pass
