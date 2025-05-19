@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import numpy as np
 
 from scipy.spatial.distance import pdist, squareform
 from trainers.standard_gan import StandardGAN
@@ -26,15 +25,16 @@ class NeighborsEmbeddingMixin:
         P_joint = self._joint_probabilities(z_batch)
         Q_joint = self._joint_probabilities(x_batch)
 
-        machine_eps = np.finfo(np.float32).eps
-        kl_loss = np.sum( P_joint * np.log((P_joint + machine_eps) / (Q_joint + machine_eps)) )
+        eps = torch.finfo(x_real.dtype).eps
+        kl_loss = torch.sum(P_joint * torch.log((P_joint + eps) / (Q_joint + eps)))
         return kl_loss
 
     def _joint_probabilities(self, batch: torch.Tensor) -> torch.Tensor:
+        eps = torch.finfo(batch.dtype).eps
         D = torch.cdist(batch, batch)
-        q_cond = (1.0 + D / (2 * D.var())) ** -1
+        q_cond = (1.0 + D / (2 * D.var() + eps)) ** -1
         q_cond.fill_diagonal_(0.0)
-        q_cond /= q_cond.sum(dim=1, keepdim=True)
+        q_cond /= q_cond.sum(dim=1, keepdim=True) + eps
         
         n = batch.shape[0]
         q_symmetric = (q_cond + q_cond.T) / (2 * n)
