@@ -31,10 +31,10 @@ class NeighborsEmbeddingMixin:
         return kl_loss
 
     def _joint_probabilities(self, batch: torch.Tensor) -> torch.Tensor:
-        D = squareform(pdist(batch, metric='sqeuclidean'))
-        q_cond = (1.0 + D / (2 * np.var(D))) ** -1
-        np.fill_diagonal(q_cond, 0.0)
-        q_cond /= q_cond.sum(axis=1, keepdims=True)
+        D = torch.cdist(batch, batch)
+        q_cond = (1.0 + D / (2 * D.var())) ** -1
+        q_cond.fill_diagonal_(0.0)
+        q_cond /= q_cond.sum(dim=1, keepdim=True)
         
         n = batch.shape[0]
         q_symmetric = (q_cond + q_cond.T) / (2 * n)
