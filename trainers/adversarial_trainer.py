@@ -57,8 +57,8 @@ class AdversarialTraining(L.LightningModule):
     def __log_images(self, n_generated_imgs: int = 32): 
         if self.logger is None:
             return
-        
-           
+
+
         generated_imgs = self.generator(self.fixed_latents.to(self.device))
         
         # Convert to proper format and normalize

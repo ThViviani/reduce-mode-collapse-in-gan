@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-from scipy.spatial.distance import pdist, squareform
 from trainers.standard_gan import StandardGAN
 from trainers.rp_gan import RpGAN
 
