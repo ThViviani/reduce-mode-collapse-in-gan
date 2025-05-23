@@ -6,11 +6,12 @@ from trainers.rp_gan import RpGAN
 
 
 class DiversityPenaltyMixin:
-    def _diversity_penalty_loss(self, x_real: torch.Tensor, scale: float = 5.0) -> torch.Tensor:
-        z = torch.randn(x_real.size(0), self.opt.latent_dim, device=self.device)
+    def _diversity_penalty_loss(self, bath_size: int, scale: float = 5.0) -> torch.Tensor:
+        z = torch.randn(bath_size, self.opt.latent_dim, device=self.device)
         G_z = nn.functional.sigmoid(scale * self._cosine_gram_matrix(z))
         
-        _, features = self.critic(x_real, return_features=True)
+        x_fake = self.generator(z)
+        _, features = self.critic(x_fake, return_features=True)
         features = features.reshape(features.shape[0], -1)
         G_f = nn.functional.sigmoid(scale * self._cosine_gram_matrix(features))
         
