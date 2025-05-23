@@ -12,3 +12,4 @@ class TrainOptions:
     use_gp: bool = False
     gamma_gp: float = 1.
     latent_distance_penalty: float = 1.
+    diversity_penalty: float = 10.
