@@ -33,7 +33,9 @@ class DpVanilaGan(DiversityPenaltyMixin, StandardGAN):
     def _generator_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         base_loss = super()._generator_loss(x_real, criterion)
         lambda_dp = self.opt.diversity_penalty
-        g_loss = base_loss + lambda_dp * self._diversity_penalty_loss(x_real, self._compute_scale_for_dp())
+        dp_loss = self._diversity_penalty_loss(x_real, self._compute_scale_for_dp())
+        g_loss = base_loss + lambda_dp * dp_loss
+        self.log_dict({'dp_loss': dp_loss}, prog_bar=True)  
         return g_loss
 
 class DpRpGAN(DiversityPenaltyMixin, RpGAN): pass
