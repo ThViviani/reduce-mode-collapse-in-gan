@@ -44,7 +44,7 @@ class CriticMNIST(nn.Module):
             DiscriminatorCNNBlock(ndf * 2, ndf * 4), # 112 x 3 x 3
         )
 
-        self.logits = nn.Conv2d(ndf * 4, 1, 4, 2, 1, bias=False), # 1 x 1 x 1
+        self.logits = nn.Conv2d(ndf * 4, 1, 4, 2, 1, bias=False) # 1 x 1 x 1
 
     def forward(self, x, return_features=False):
         features = self.feature_extractor(x)
