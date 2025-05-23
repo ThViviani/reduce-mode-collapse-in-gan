@@ -48,8 +48,8 @@ class CriticMNIST(nn.Module):
 
     def forward(self, x, return_features=False):
         features = self.feature_extractor(x)
-        logits = self.logits(features)
-        return (logits, features) if return_features else logits
+        logits_ = self.logits(features)
+        return (logits_, features) if return_features else logits_
 
     # TODO: move this logic to Mixin
     def freeze(self):
