@@ -24,14 +24,11 @@ class DiversityPenaltyMixin:
         normilized_features = nn.functional.normalize(features, p=2, dim=1)
         G = torch.mm(normilized_features, normilized_features.t())
         return G
-    
-    def _compute_scale_for_dp(self):
-        return 5.0
-    
+        
     def _generator_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         base_loss = super()._generator_loss(x_real, criterion)
         lambda_dp = self.opt.diversity_penalty
-        dp_loss = self._diversity_penalty_loss(x_real.size(0), self._compute_scale_for_dp())
+        dp_loss = self._diversity_penalty_loss(x_real.size(0))
         g_loss = base_loss + lambda_dp * dp_loss
         self.log_dict({'dp_loss': dp_loss}, prog_bar=True)  
         return g_loss
@@ -39,4 +36,5 @@ class DiversityPenaltyMixin:
 
 
 class DpVanilaGan(DiversityPenaltyMixin, StandardGAN): pass
+
 class DpRpGAN(DiversityPenaltyMixin, RpGAN): pass
