@@ -15,6 +15,7 @@ class AdversarialTraining(L.LightningModule):
             generator: nn.Module,
             encoder: nn.Module | None = None, 
             opt: TrainOptions = TrainOptions(),
+            prior_type: str = 'normal',
     ):
         super().__init__()
         
@@ -27,6 +28,7 @@ class AdversarialTraining(L.LightningModule):
             if net is not None:
                 net.apply(self._initialize_weights)
         
+        self.prior_type = prior_type
         self.opt = opt 
         self.fixed_latents = torch.randn(opt.batch_size, opt.latent_dim, 1, 1)
 
@@ -121,6 +123,12 @@ class AdversarialTraining(L.LightningModule):
         self.manual_backward(ae_loss)
         optimizer.step()
         return ae_loss
+
+    def _sample_z(self, batch_size):
+        if self.prior_type == 'normal':
+            return torch.randn(batch_size, self.latent_dim, device=self.device)
+        else: # uniform [-1, 1]
+            return torch.rand(batch_size, self.latent_dim, device=self.device) * 2.0 - 1.0
 
     def training_step(self, batch, batch_idx):
         if self.encoder is not None:

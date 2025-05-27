@@ -7,7 +7,7 @@ from trainers.rp_gan import RpGAN
 
 class DiversityPenaltyMixin:
     def _diversity_penalty_loss(self, batсh_size: int, scale: float = 5.0) -> torch.Tensor:
-        z = torch.randn((batсh_size, self.opt.latent_dim), device=self.device)
+        z = self._sample_z(batch_size=batсh_size)
         G_z = nn.functional.sigmoid(scale * self._cosine_gram_matrix(z))
         
         x_fake = self.generator(z)

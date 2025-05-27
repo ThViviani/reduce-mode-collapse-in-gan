@@ -14,7 +14,7 @@ class DistMixin:
         return ae_loss + lambda_r * self._regularization_loss(x_real)
 
     def _regularization_loss(self, x_real: torch.Tensor):
-        z = torch.randn(x_real.shape[0], self.opt.latent_dim, device=self.device)
+        z = self._sample_z(batch_size=x_real.size(0))
         md_x = torch.mean(self.generator(self.encoder(x_real)) - self.generator(z))
         lambda_w = np.sqrt(self.opt.latent_dim / (x_real.shape[-1]**2))
         md_z = torch.mean(self.encoder(x_real) - z) * lambda_w

@@ -35,7 +35,7 @@ class RpGAN(AdversarialTraining):
         x_real.requires_grad_(True)
         critic_real = self.critic(x_real)
 
-        z = torch.randn(x_real.size(0), self.opt.latent_dim, device=self.device)
+        z = self._sample_z(batch_size=x_real.size(0))
         x_fake = self.generator(z)
         x_fake.requires_grad_(True)
         critic_fake = self.critic(x_fake.detach())
@@ -53,7 +53,7 @@ class RpGAN(AdversarialTraining):
     def _generator_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         critic_real = self.critic(x_real)
 
-        z = torch.randn(x_real.size(0), self.opt.latent_dim, device=self.device)
+        z = self._sample_z(batch_size=x_real.size(0))
         critic_fake = self.critic(self.generator(z))
 
         real_vs_fake = critic_fake - critic_real

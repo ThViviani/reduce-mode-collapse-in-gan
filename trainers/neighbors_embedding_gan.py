@@ -15,7 +15,7 @@ class NeighborsEmbeddingMixin:
         return ae_loss + lambda_r * regularization_loss 
 
     def _regularization_loss(self, x_real: torch.Tensor):
-        z = torch.randn(x_real.shape[0], self.opt.latent_dim, device=self.device)
+        z = self._sample_z(batch_size=x_real.shape[0])
         z_hat = self.encoder(x_real)
         z_batch = torch.concat([z, z_hat]) # [B_size * 2, latent_dim]
 
