@@ -126,9 +126,9 @@ class AdversarialTraining(L.LightningModule):
 
     def _sample_z(self, batch_size):
         if self.prior_type == 'normal':
-            return torch.randn(batch_size, self.latent_dim, device=self.device)
+            return torch.randn(batch_size, self.opt.latent_dim, device=self.device)
         else: # uniform [-1, 1]
-            return torch.rand(batch_size, self.latent_dim, device=self.device) * 2.0 - 1.0
+            return torch.rand(batch_size, self.opt.latent_dim, device=self.device) * 2.0 - 1.0
 
     def training_step(self, batch, batch_idx):
         if self.encoder is not None:
