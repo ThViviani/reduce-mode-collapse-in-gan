@@ -19,8 +19,16 @@ class RpGAN(AdversarialTraining):
         encoder: nn.Module | None = None,
         opt: TrainOptions = TrainOptions(),
         use_r1r2_penalty: bool = False,
+        prior_type: str = 'normal',
     ):
-        super().__init__(critic=critic, generator=generator, encoder=encoder, opt=opt)
+        super().__init__(
+            critic=critic, 
+            generator=generator, 
+            encoder=encoder, 
+            opt=opt, 
+            prior_type=prior_type
+        )
+        
         self.use_grad_penalty = use_r1r2_penalty
 
     @staticmethod
