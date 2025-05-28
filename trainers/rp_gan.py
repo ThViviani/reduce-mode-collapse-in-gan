@@ -21,7 +21,7 @@ class RelativisticGanMixin:
             outputs=critics_out.sum(), inputs=critics_in, create_graph=True
         )
         # Sum of squares over channel, height, width dims, then mean over batch
-        return grads.pow(2).sum(dim=[1, 2, 3]).mean()
+        return grads.pow(2).flatten(start_dim=1).sum(dim=1).mean()
 
     def _critic_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         x_real.requires_grad_(True)
