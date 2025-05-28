@@ -7,28 +7,12 @@ import numpy as np
 from utils.train_options import TrainOptions
 from trainers.adversarial_trainer import AdversarialTraining
 
-
-class RpGAN(AdversarialTraining):
+class RelativisticGanMixin:
     """
     Relativistic paired GAN implementation using zero-centered R1/R2 gradient penalty.
     """
-    def __init__(
-        self,
-        critic: nn.Module,
-        generator: nn.Module,
-        encoder: nn.Module | None = None,
-        opt: TrainOptions = TrainOptions(),
-        use_r1r2_penalty: bool = False,
-        prior_type: str = 'normal',
-    ):
-        super().__init__(
-            critic=critic, 
-            generator=generator, 
-            encoder=encoder, 
-            opt=opt, 
-            prior_type=prior_type
-        )
-        
+    def __init__(self, use_r1r2_penalty: bool = False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.use_grad_penalty = use_r1r2_penalty
 
     @staticmethod
@@ -67,3 +51,6 @@ class RpGAN(AdversarialTraining):
         real_vs_fake = critic_fake - critic_real
         loss_g = criterion(real_vs_fake, torch.ones_like(critic_real, device=self.device))
         return loss_g
+    
+
+class RpGAN(RelativisticGanMixin, AdversarialTraining): pass
