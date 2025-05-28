@@ -134,7 +134,7 @@ class AdversarialTraining(L.LightningModule):
         schedulers = self.lr_schedulers()
         if schedulers is not None:
             for scheduler in schedulers:
-                if ( self.global_step / len(schedulers) ) % self.opt.n_steps_lr_decay:
+                if ( self.global_step / len(schedulers) ) % self.opt.n_steps_lr_decay == 0:
                     scheduler.step()
 
     def training_step(self, batch, batch_idx):
