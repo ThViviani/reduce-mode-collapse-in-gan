@@ -13,6 +13,7 @@ from trainers.neighbors_embedding_gan import NeighborsEmbeddingMixin
 from trainers.rp_gan import RelativisticGanMixin
 from trainers.dist_gan import DistMixin
 from trainers.dp_gan import DiversityPenaltyMixin
+from trainers.ne_gan_without_ae import NeighborsEmbeddingMixin_hat
 
 
 class SyntheticAdversarialTraining(AdversarialTraining):
@@ -114,7 +115,6 @@ class SyntheticAdversarialTraining(AdversarialTraining):
         modes_covered_count = (mode_covered >= threshold).sum()
         return modes_covered_count, registered_samples   
 
-
 class SyntheticVanilaGAN(SyntheticAdversarialTraining, StandardGAN): pass
 class SyntheticRpGAN(RelativisticGanMixin, SyntheticAdversarialTraining): pass
 
@@ -126,3 +126,6 @@ class SynthDistRpGAN(DistMixin, SyntheticRpGAN): pass
 
 class SynthDpVanilaGAN(DiversityPenaltyMixin, SyntheticVanilaGAN): pass
 class SynthDpRpGAN(DiversityPenaltyMixin, SyntheticRpGAN): pass   
+
+class SynthNEhatVanilaGAN(NeighborsEmbeddingMixin_hat, SyntheticVanilaGAN): pass
+class SynthNEhatRpGAN(NeighborsEmbeddingMixin_hat, SyntheticRpGAN): pass
