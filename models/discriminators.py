@@ -1,15 +1,8 @@
 import torch
 import torch.nn as nn
 
+from models.utils import ModelFreezeMixin, MLP
 
-class ModelFreezeMixin:
-    def freeze(self):
-        for param in self.parameters():
-            param.requires_grad = False
-
-    def unfreeze(self):
-        for param in self.parameters():
-            param.requires_grad = True
 
 class DiscriminatorCNNBlock(nn.Module):
     """Defines a discriminator CNN block"""
@@ -59,3 +52,8 @@ class CriticMNIST(ModelFreezeMixin, nn.Module):
         features = self.feature_extractor(x)
         logits_ = self.logits(features)
         return (logits_, features) if return_features else logits_
+    
+class Critic2D(MLP):
+    def forward(self, x, return_features=False):
+        logits = super().forward(x)
+        return (logits, logits) if return_features else logits
