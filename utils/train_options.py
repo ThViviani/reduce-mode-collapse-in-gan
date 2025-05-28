@@ -14,3 +14,4 @@ class TrainOptions:
     latent_distance_penalty: float = 1.
     diversity_penalty: float = 10.
     n_gen_points_in_synth_experiment: int = 2000
+    n_steps_lr_decay: int = 10000
