@@ -7,20 +7,12 @@ import numpy as np
 from utils.train_options import TrainOptions
 from trainers.adversarial_trainer import AdversarialTraining
 
-
-class RpGAN(AdversarialTraining):
+class RelativisticGanMixin:
     """
     Relativistic paired GAN implementation using zero-centered R1/R2 gradient penalty.
     """
-    def __init__(
-        self,
-        critic: nn.Module,
-        generator: nn.Module,
-        encoder: nn.Module | None = None,
-        opt: TrainOptions = TrainOptions(),
-        use_r1r2_penalty: bool = False,
-    ):
-        super().__init__(critic=critic, generator=generator, encoder=encoder, opt=opt)
+    def __init__(self, use_r1r2_penalty: bool = False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.use_grad_penalty = use_r1r2_penalty
 
     @staticmethod
@@ -29,7 +21,7 @@ class RpGAN(AdversarialTraining):
             outputs=critics_out.sum(), inputs=critics_in, create_graph=True
         )
         # Sum of squares over channel, height, width dims, then mean over batch
-        return grads.pow(2).sum(dim=[1, 2, 3]).mean()
+        return grads.pow(2).flatten(start_dim=1).sum(dim=1).mean()
 
     def _critic_loss(self, x_real: torch.Tensor, criterion: nn.Module) -> torch.Tensor:
         x_real.requires_grad_(True)
@@ -59,3 +51,6 @@ class RpGAN(AdversarialTraining):
         real_vs_fake = critic_fake - critic_real
         loss_g = criterion(real_vs_fake, torch.ones_like(critic_real, device=self.device))
         return loss_g
+    
+
+class RpGAN(RelativisticGanMixin, AdversarialTraining): pass

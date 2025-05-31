@@ -130,6 +130,13 @@ class AdversarialTraining(L.LightningModule):
         else: # uniform [-1, 1]
             return torch.rand(batch_size, self.opt.latent_dim, device=self.device) * 2.0 - 1.0
 
+    def _update_schedulers(self):
+        schedulers = self.lr_schedulers()
+        if schedulers is not None:
+            for scheduler in schedulers:
+                if ( self.global_step / len(schedulers) ) % self.opt.n_steps_lr_decay == 0:
+                    scheduler.step()
+
     def training_step(self, batch, batch_idx):
         if self.encoder is not None:
           ae_optimizer, critic_optimizer, generator_optimizer = self.optimizers()
@@ -152,6 +159,8 @@ class AdversarialTraining(L.LightningModule):
             critic_loss = self._critic_step(x_real, critic_optimizer, criterion)
 
         gen_loss = self._generator_step(x_real, generator_optimizer, criterion)
+
+        self._update_schedulers()
 
         history['loss_g'] = gen_loss.item()
         history['loss_d'] = critic_loss.item()

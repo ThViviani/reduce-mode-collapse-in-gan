@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+from models.utils import MLP
 
 class GeneratorCNNBlock(nn.Module):
     """Defines a generator CNN block"""
@@ -69,3 +70,7 @@ class GeneratorMNIST(nn.Module):
     def forward(self, z):
         z = z.view(z.size(0), z.size(1), 1, 1)
         return self.generator(z)
+    
+class Generator2D(MLP):
+    def forward(self, x):
+        return torch.sigmoid(super().forward(x))
