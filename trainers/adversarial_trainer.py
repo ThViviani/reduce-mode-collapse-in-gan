@@ -30,7 +30,7 @@ class AdversarialTraining(L.LightningModule):
         
         self.prior_type = prior_type
         self.opt = opt 
-        self.fixed_latents = torch.randn(opt.batch_size, opt.latent_dim, 1, 1)
+        self.fixed_latents = torch.randn(opt.batch_size, opt.latent_dim)
 
     def _initialize_weights(self, m):
         if isinstance(m, (nn.Conv2d)):
