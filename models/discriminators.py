@@ -7,13 +7,23 @@ from models.utils import ModelFreezeMixin, MLP
 class DiscriminatorCNNBlock(nn.Module):
     """Defines a discriminator CNN block"""
 
-    def __init__(self, in_channels, out_channels, kernel_size=4, stride=2, use_dropout=False, norm_layer=nn.BatchNorm2d):
+    def __init__(
+            self, 
+            in_channels, 
+            out_channels, 
+            kernel_size=4, 
+            stride=2, 
+            use_dropout=False, 
+            norm_layer=nn.BatchNorm2d,
+            negative_slope=0.2,
+        ):
         """Construct a convolutional block.
         Parameters:
             in_channels (int)  -- the number of channels in the input
             out_channels (int) -- the number of channels in the ouput when applyed this block
             norm_layer         -- normalization layer
             stride (int)       -- the stride of conv layer
+            negative_slope (float) -- controls the angle of the negative slope (which is used for negative input values). 
         """
 
         super(DiscriminatorCNNBlock, self).__init__()
@@ -21,7 +31,7 @@ class DiscriminatorCNNBlock(nn.Module):
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=1, bias=False),
             norm_layer(out_channels),
-            nn.LeakyReLU(0.2, inplace=True),
+            nn.LeakyReLU(negative_slope, inplace=True),
         )
 
         if use_dropout:
