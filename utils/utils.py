@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-import torch.utils as vutils
+import torchvision.utils as vutils
 import numpy as np
 
 
