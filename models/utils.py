@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from torchvision import models
+
 
 class ModelFreezeMixin:
     def freeze(self):
@@ -24,3 +26,25 @@ class MLP(ModelFreezeMixin, nn.Module):
         x = torch.relu(self.fc2(x))
         x = self.fc3(x)
         return x
+
+class ResNet50OnMNIST(nn.Module):
+    """
+    Initializes a ResNet-50 model adapted for grayscale MNIST digit classification.
+    Loads pretrained weights from the given checkpoint path.
+    """
+
+    def __init__(self, path_to_checkpoint=''):
+        super().__init__()
+
+        self.model = models.resnet50(pretrained=False)
+        self.model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.model.fc = nn.Linear(2048, 10, bias=True)
+        self.model.load_state_dict(torch.load(path_to_checkpoint, weights_only=True))
+
+    def forward(self, x):
+        return self.model(x)
+
+    def predict(self, x):
+        outputs = self.model(x)
+        _, predicted = torch.max(outputs.data, 1)
+        return predicted
