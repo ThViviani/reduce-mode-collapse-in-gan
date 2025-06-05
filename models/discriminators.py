@@ -16,6 +16,7 @@ class DiscriminatorCNNBlock(nn.Module):
             use_dropout=False, 
             norm_layer=nn.BatchNorm2d,
             negative_slope=0.2,
+            padding=1,
         ):
         """Construct a convolutional block.
         Parameters:
@@ -29,7 +30,7 @@ class DiscriminatorCNNBlock(nn.Module):
         super(DiscriminatorCNNBlock, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=1, bias=False),
+            nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=padding, bias=False),
             norm_layer(out_channels),
             nn.LeakyReLU(negative_slope, inplace=True),
         )
