@@ -68,3 +68,23 @@ class Critic2D(MLP):
     def forward(self, x, return_features=False):
         logits = super().forward(x)
         return (logits, logits) if return_features else logits
+    
+class CriticStackedMNIST(ModelFreezeMixin, nn.Module):
+  def __init__(self, x_factor=2, nc=3):
+    super().__init__()
+
+    self.feature_extractor = nn.Sequential( # 3 x 32 x 32
+        DiscriminatorCNNBlock(nc, 8 // x_factor, kernel_size=3, negative_slope=0.3), # 4 x 16 x 16
+        DiscriminatorCNNBlock(8 // x_factor, 16 // x_factor, kernel_size=3, negative_slope=0.3), # 8 x 8 x 8
+        DiscriminatorCNNBlock(16 // x_factor, 32 // x_factor, kernel_size=3, negative_slope=0.3), # 16 x 4 x 4
+    )
+
+    self.logits = nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(16 * 4 * 4, 1) if x_factor == 2 else nn.Linear(8 * 4 * 4, 1),
+    )
+
+  def forward(self, x, return_features=False):
+    features = self.feature_extractor(x)
+    logits_ = self.logits(features)
+    return (logits_, features) if return_features else logits_

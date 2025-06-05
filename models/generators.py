@@ -74,3 +74,20 @@ class GeneratorMNIST(nn.Module):
 class Generator2D(MLP):
     def forward(self, x):
         return torch.sigmoid(super().forward(x))
+    
+class GeneratorStackedMNIST(nn.Module):
+  def __init__(self, ngf=64, nc=3, z_dim=128):
+        super().__init__()
+
+        self.generator = nn.Sequential(
+            nn.Linear(z_dim, ngf * 4 * 4),
+            nn.Unflatten(1, (ngf, 4, 4)), # ngf * 4 * 4
+            GeneratorCNNBlock(ngf, ngf // 2, kernel_size=4, stride=2, padding=1), # 32 x 8 x 8
+            GeneratorCNNBlock(ngf // 2, ngf // 4, kernel_size=4, stride=2, padding=1), # 16 x 16 x 16
+            GeneratorCNNBlock(ngf // 4, ngf // 8, kernel_size=4, stride=2, padding=1), # 4 x 16 x 16
+            nn.Conv2d(ngf // 8, nc, kernel_size=3, stride=1, padding=1), # 3 x 32 x 32
+            nn.Tanh()
+        )
+
+  def forward(self, z):
+      return self.generator(z)
