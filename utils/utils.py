@@ -5,6 +5,7 @@ import numpy as np
 import torchvision.transforms as transforms
 import torch_fidelity
 import gc
+import torch.nn as nn
 
 from torch.utils.data import Dataset
 
