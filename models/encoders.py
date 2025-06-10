@@ -37,3 +37,35 @@ class EncoderMNIST(nn.Module):
         x = self.conv3(x)
         x = x.view(x.size(0), -1)
         return self.fc(x)
+    
+class EncoderCIFAR10(nn.Module): # the implementation from Dist-GAN
+    def __init__(self, nc=3, z_dim=128, dim=64, kernel_size=5, stride=2):
+        super().__init__()
+        
+        dim = dim * 2
+        
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(nc, dim, kernel_size, stride, padding=2),
+            nn.ReLU()
+        )
+
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(dim, dim*2, kernel_size, stride, padding=2),
+            nn.BatchNorm2d(dim*2),
+            nn.ReLU()
+        )
+
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(dim*2, dim*4, kernel_size, stride, padding=2),
+            nn.BatchNorm2d(dim*4),
+            nn.ReLU()
+        )
+
+        self.fc = nn.Linear(4 * 4 * dim * 4, z_dim)
+
+    def forward(self, img):
+        x = self.conv1(img)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = x.view(x.size(0), -1)
+        return self.fc(x)
