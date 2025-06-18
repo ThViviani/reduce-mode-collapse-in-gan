@@ -18,8 +18,11 @@ class ModesCoveredKLMNIST(Callback):
         batch_size: int = 256,
         confidence=0.99,
         n_classes=10,
+        log_every_n_epochs=5,
     ):
         super().__init__()
+
+        self.log_every_n_epochs = log_every_n_epochs
         self.classifier = classifier.eval()
         self.z_dim = z_dim
         self.total_samples = total_samples
@@ -63,6 +66,9 @@ class ModesCoveredKLMNIST(Callback):
         return output.item() 
 
     def on_train_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        if trainer.current_epoch % self.log_every_n_epochs != 0:
+            return
+
         preds_labels = self._get_preds_labels(pl_module)
         modes_covered = self._compute_modes_covered(preds_labels, self.n_classes)
         kl_loss = self._compute_kl_loss(self.target_labels_for_kl, preds_labels, self.n_classes)
