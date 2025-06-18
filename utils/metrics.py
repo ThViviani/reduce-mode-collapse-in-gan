@@ -4,6 +4,7 @@ import lightning as L
 
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import WandbLogger
+from torchmetrics.image import FrechetInceptionDistance, InceptionScore
 
 
 class ModesCoveredMNIST(Callback):
@@ -80,3 +81,51 @@ class ModesCoveredStackedMNIST(ModesCoveredMNIST):
             result = 100 * labels[0] + 10 * labels[1] + labels[2]       
             results.extend(result * accepted_labels)
         return torch.Tensor(results)
+    
+class FIDIS(Callback):
+    def __init__(self, log_every_n_epochs=5):
+        self.fid = FrechetInceptionDistance(normalize=True)
+        self.is_score = InceptionScore(normalize=True)
+        self.fid_results = []
+        self.is_results = []
+        self.log_every_n_epochs = log_every_n_epochs 
+
+    def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+        if trainer.current_epoch % self.log_every_n_epochs != 0:
+            return
+            
+        fake, real = outputs['fake_images'], outputs['real_images']
+        
+        self.fid.to(pl_module.device)
+        self.is_score.to(pl_module.device)
+        
+        if real.shape[1] == 1:
+            real = real.repeat(1, 3, 1, 1)
+            fake = fake.repeat(1, 3, 1, 1)
+            
+        self.fid.update(real, real=True)
+        self.fid.update(fake, real=False)            
+        self.is_score.update(fake)
+
+    def on_validation_epoch_end(self, trainer, pl_module):
+        if trainer.current_epoch % self.log_every_n_epochs != 0:
+            return
+        
+        current_fid = self.fid.compute().item()
+        current_is = self.is_score.compute()
+
+        if isinstance(trainer.logger, WandbLogger):
+            wandb_run = trainer.logger.experiment 
+            
+            wandb_run.log(
+                {"fid": current_fid, "epoch": trainer.current_epoch},
+            )
+
+            wandb_run.log(
+                {'is': current_is[0].item(), 'epoch': trainer.current_epoch}
+            )
+        
+        self.fid.reset(); self.is_score.reset()
+
+        self.fid_results.append(current_fid)
+        self.is_results.append(current_is)
