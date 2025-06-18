@@ -23,6 +23,7 @@ class ModesCovered(Callback):
         self.batch_size = batch_size
         self.confidence = confidence
         self.n_classes = n_classes
+        self.results = []
 
     def _compute_modes_covered(self, preds_labels, n_classes=1000):
         modes_covered = torch.bincount(preds_labels.int(), minlength=n_classes)
@@ -44,6 +45,8 @@ class ModesCovered(Callback):
         preds_labels = torch.Tensor(preds_labels)
         modes_covered = self._compute_modes_covered(preds_labels, self.n_classes)
         
+        self.results.append(modes_covered)
+
         if isinstance(trainer.logger, WandbLogger):
             wandb_run = trainer.logger.experiment 
             
