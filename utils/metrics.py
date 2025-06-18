@@ -6,7 +6,7 @@ from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import WandbLogger
 
 
-class ModesCovered(Callback):
+class ModesCoveredMNIST(Callback):
     def __init__(
         self,
         classifier: nn.Module,
@@ -29,7 +29,7 @@ class ModesCovered(Callback):
         modes_covered = torch.bincount(preds_labels.int(), minlength=n_classes)
         return (modes_covered > 0).sum().item()
 
-    def on_train_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+    def _get_preds_labels(self, pl_module):
         self.classifier.to(pl_module.device)
         num_batches = self.total_samples // self.batch_size
         preds_labels = []
@@ -38,11 +38,15 @@ class ModesCovered(Callback):
             with torch.no_grad():
                 fake_imgs = pl_module.generator(z)
                 logits    = self.classifier(fake_imgs)
-                p_logits = torch.nn.functional.softmax(logits).detach()
+                p_logits = torch.nn.functional.softmax(logits, dim=1).detach()
                 confidences, labels_hat = torch.max(p_logits, dim=1)
                 preds_labels.extend(labels_hat * (confidences > self.confidence))
 
         preds_labels = torch.Tensor(preds_labels)
+        return preds_labels 
+
+    def on_train_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
+        preds_labels = self._get_preds_labels(pl_module)
         modes_covered = self._compute_modes_covered(preds_labels, self.n_classes)
         
         self.results.append(modes_covered)
@@ -51,6 +55,5 @@ class ModesCovered(Callback):
             wandb_run = trainer.logger.experiment 
             
             wandb_run.log(
-                {"modes_covered": modes_covered},
-                step=trainer.global_step,
+                {"modes_covered": modes_covered, "epoch": trainer.current_epoch},
             )
