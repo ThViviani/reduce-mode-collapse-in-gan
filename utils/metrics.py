@@ -81,7 +81,7 @@ class ModesCoveredKLMNIST(Callback):
                 {"kl": kl_loss, "epoch": trainer.current_epoch},
             )
 
-class ModesCoveredKLStackedMNIST(ModesCoveredMNIST):
+class ModesCoveredKLStackedMNIST(ModesCoveredKLMNIST):
     def _get_preds_labels(self, pl_module):
         results = []
         self.classifier.to(pl_module.device)
