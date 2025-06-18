@@ -1,16 +1,18 @@
 import torch.nn as nn
 import torch
 import lightning as L
+import torch.nn.functional as F
 
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import WandbLogger
 from torchmetrics.image import FrechetInceptionDistance, InceptionScore
 
 
-class ModesCoveredMNIST(Callback):
+class ModesCoveredKLMNIST(Callback):
     def __init__(
         self,
         classifier: nn.Module,
+        target_labels_for_kl: torch.Tensor,
         z_dim: int,
         total_samples: int = 25600,
         batch_size: int = 256,
@@ -24,7 +26,9 @@ class ModesCoveredMNIST(Callback):
         self.batch_size = batch_size
         self.confidence = confidence
         self.n_classes = n_classes
-        self.results = []
+        self.modes_covered_results = []
+        self.kl_losses = []
+        self.target_labels_for_kl = target_labels_for_kl
 
     def _compute_modes_covered(self, preds_labels, n_classes=1000):
         modes_covered = torch.bincount(preds_labels.int(), minlength=n_classes)
@@ -44,13 +48,27 @@ class ModesCoveredMNIST(Callback):
                 preds_labels.extend(labels_hat * (confidences > self.confidence))
 
         preds_labels = torch.Tensor(preds_labels)
-        return preds_labels 
+        return preds_labels
+    
+    def _compute_kl_loss(self, true_labels, hat_labels, n_classes=1000):
+        counts = torch.bincount(true_labels.int(), minlength=n_classes)
+        p_real = (counts.float() / counts.sum())
+
+        counts = torch.bincount(hat_labels.int(), minlength=n_classes)
+        q = counts.float() / counts.sum()
+        q = torch.log(q + 1e-12)
+        
+        kl_loss = nn.KLDivLoss(reduction="sum")
+        output = kl_loss(q, p_real)
+        return output.item() 
 
     def on_train_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
         preds_labels = self._get_preds_labels(pl_module)
         modes_covered = self._compute_modes_covered(preds_labels, self.n_classes)
+        kl_loss = self._compute_kl_loss(self.target_labels_for_kl, preds_labels, self.n_classes)
         
-        self.results.append(modes_covered)
+        self.modes_covered_results.append(modes_covered)
+        self.kl_losses.append(kl_loss)
 
         if isinstance(trainer.logger, WandbLogger):
             wandb_run = trainer.logger.experiment 
@@ -59,7 +77,11 @@ class ModesCoveredMNIST(Callback):
                 {"modes_covered": modes_covered, "epoch": trainer.current_epoch},
             )
 
-class ModesCoveredStackedMNIST(ModesCoveredMNIST):
+            wandb_run.log(
+                {"kl": kl_loss, "epoch": trainer.current_epoch},
+            )
+
+class ModesCoveredKLStackedMNIST(ModesCoveredMNIST):
     def _get_preds_labels(self, pl_module):
         results = []
         self.classifier.to(pl_module.device)
