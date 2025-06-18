@@ -14,7 +14,7 @@ class ModesCoveredMNIST(Callback):
         total_samples: int = 25600,
         batch_size: int = 256,
         confidence=0.99,
-        n_classes=1000,
+        n_classes=10,
     ):
         super().__init__()
         self.classifier = classifier.eval()
@@ -57,3 +57,26 @@ class ModesCoveredMNIST(Callback):
             wandb_run.log(
                 {"modes_covered": modes_covered, "epoch": trainer.current_epoch},
             )
+
+class ModesCoveredStackedMNIST(ModesCoveredMNIST):
+    def _get_preds_labels(self, pl_module):
+        results = []
+        self.classifier.to(pl_module.device)
+        num_batches = self.total_samples // self.batch_size
+        for _ in range(num_batches):
+            z = torch.randn(self.batch_size, self.z_dim, device=pl_module.device)
+            x = pl_module.generator(z)
+            labels = []
+            confidences = []
+            for channel in range(3):
+                digits_in_channel = x[:, channel, :, :].unsqueeze(dim=1)
+                logits = self.classifier(digits_in_channel)
+                p_logits = torch.nn.functional.softmax(logits, dim=1).detach()
+                channel_confidences, labels_hat = torch.max(p_logits, dim=1)
+                labels.append(labels_hat)
+                confidences.append(channel_confidences)
+                
+            accepted_labels = (confidences[0] > self.confidence) * (confidences[1] > self.confidence) * (confidences[2] > self.confidence) # хотя бы одну цифру неуверено классифицирует == даем общий лейбл 000
+            result = 100 * labels[0] + 10 * labels[1] + labels[2]       
+            results.extend(result * accepted_labels)
+        return torch.Tensor(results)
