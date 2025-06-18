@@ -167,4 +167,18 @@ class AdversarialTraining(L.LightningModule):
         
         self.log_dict(history, prog_bar=True)
         self.__log_gradients()
-        return history  
+        return history
+    
+    def validation_step(self, batch, batch_idx):
+        x_real, _ = batch
+        z = self._sample_z(self.opt.batch_size)
+        x_fake = self.generator(z)
+        
+        #transorm to [0, 1]
+        x_real = (x_real + 1.) / 2. 
+        x_fake = (x_fake + 1.) / 2.
+
+        return {
+            'real_images': x_real,
+            'fake_images': x_fake,
+        }
