@@ -91,9 +91,10 @@ All variants of tested model variants combine one of two base trainer classes wi
 
 ## 📊 Results
 
-1. **2D - synthetic experiment [`notebooks/2d-synthetic-experiments.ipynb`](./notebooks/2d-synthetic-experiments.ipynb):**
+**2D - synthetic experiment [`notebooks/2d-synthetic-experiments.ipynb`](./notebooks/2d-synthetic-experiments.ipynb):**
 
 ![2D - synthetic experiment](/assets/2d.gif)
+
 50 000 points, 25 gaussians with var = 0.1, 500 epochs
 
 **Best epoch:**
@@ -114,6 +115,33 @@ All variants of tested model variants combine one of two base trainer classes wi
 | 3      | NERpGAN+R1R2            |            0 |                    148 |
 | 3      | DpRpGAN+R1R2            |            3 |                    148 |
 | 3      | NERpGAN_hat+R1R2        |            1 |                    985 |
+
+**Stacked-MNIST experiment [`notebooks/stacked_mnist_experiments.ipynb`](./notebooks/stacked_mnist_experiments.ipynb):**
+
+  Dataset builder: [`dataset_builders/stacked_mnist.py`](./dataset_builders/stacked_mnist.py) 
+
+![Stacked-MNIST experiment](/assets/stacked_mnist.gif)
+
+120 000 train, 20 000 test, 300 epochs. 
+
+**Best epoch:**
+| Group  | Model                     |   IS ↑ |  Modes covered ↑ |    KL ↓ |
+|--------|---------------------------|-------:|-----------------:|--------:|
+| 1      | DpVanilaGAN               |   1.32 |                3 |   20.66 |
+| 1      | NEVanilaGAN               |   1.56 |               90 |   19.11 |
+| 1      | DistVanilaGAN             |   1.81 |               98 |   19.03 |
+| 1      | NEVanilaGAN_hat           |   1.58 |               42 |   20.01 |
+| 1      | StandardGAN               |   1.43 |               18 |   20.38 |
+| 2      | RpGAN                     |   1.50 |               57 |   20.35 |
+| 2      | NERpGAN_hat               |   1.66 |               45 |   19.97 |
+| 2      | DistRpGAN                 |   1.66 |              101 |   18.96 |
+| 2      | NERpGAN                   |   1.30 |              105 |   18.87 |
+| 2      | DpRpGAN                   |   1.64 |                5 |   20.63 |
+| 3      | RpGAN_R1R2                |   1.53 |               41 |   20.03 |
+| 3      | NERpGAN_hat+R1R2          |   1.50 |               73 |   19.46 |
+| 3      | DistRpGAN+R1R2            |   1.72 |              104 |   18.94 |
+| 3      | NERpGAN+R1R2              |   1.68 |              102 |   18.95 |
+| 3      | DpRpGAN+R1R2              |   1.45 |               26 |   20.27 |
 
 
 ## References
