@@ -34,6 +34,10 @@ $$
   -\mathbb{E}_{z \sim p_z} [log(D_{\phi}(G_{\theta}(z))] \to \min_{\theta}.\quad(2)
 $$
 
+  $$
+    -\mathbb{E}_{x \sim p_{data}}[log(D_{\phi}(x))] -\mathbb{E}_{z \sim p_{z}}[log(1 - D_{\phi}(G_{\theta}(z)))] \to \min_{\phi}.\quad(1)
+  $$
+
 2. **DistVanilaGAN** ([`trainers/dist_gan.py`](./trainers/dist_gan.py)):  
 It's StandardGAN + Latent-distance regularization from Dist-GAN [1]
 - Ae-step:  
