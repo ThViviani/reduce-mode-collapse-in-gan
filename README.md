@@ -59,11 +59,11 @@ It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regular
 13. **DpRpGAN+R1R2** ([`trainers/dp_gan.py`](./trainers/dp_gan.py), use_r1r2_penalty=True):    
 It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from DpGAN [2]
 
-14. **NeRpGAN** ([`trainers/neighbors_embedding_gan.py`](./trainers/neighbors_embedding_gan.py), use_r1r2_penalty=True):    
+14. **NeRpGAN+R1R2** ([`trainers/neighbors_embedding_gan.py`](./trainers/neighbors_embedding_gan.py), use_r1r2_penalty=True):    
 It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from GN-GAN [3]
 
-15. **NERpGAN_hat** ([`trainers/ne_gan_without_ae.py`](./trainers/ne_gan_without_ae.py), use_r1r2_penalty=True):  
-It's RpGAN + Latent-distance regularization from GN-GAN [3], where $\mathcal{L}_W(\theta)$ and used on the G-step.
+15. **NERpGAN_hat+R1R2** ([`trainers/ne_gan_without_ae.py`](./trainers/ne_gan_without_ae.py), use_r1r2_penalty=True):  
+It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from GN-GAN [3], where $\mathcal{L}_W(\theta)$ and used on the G-step.
 ---
 
 ## 📊 Results
