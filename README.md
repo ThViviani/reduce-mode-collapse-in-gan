@@ -66,6 +66,29 @@ It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regular
 It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from GN-GAN [3], where $\mathcal{L}_W(\theta)$ and used on the G-step.
 ---
 
+## Implementation details
+
+All variants of tested model variants combine one of two base trainer classes with zero or more mixins:
+
+- Base Trainers
+
+  - StandardGAN — vanilla GAN loss functions
+
+  - RpGAN — relativistic average GAN loss
+
+- Regularization Mixins
+
+  - DistMixin — adds Dist‑GAN regularization and encoder loss
+  
+  - DiversityPenaltyMixin - adds DpGAN regularization
+
+  - NeighborsEmbeddingMixin - adds GN-GAN regularization and encoder loss
+
+  - NeighborsEmbeddingMixin_hat - add GN-GAN regularization without AE loss
+
+**GAN Variant Inheritance Hierarchy:**
+![GAN Variant Inheritance Hierarchy](/assets/image.png)
+
 ## 📊 Results
 
 TODO
