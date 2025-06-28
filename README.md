@@ -25,13 +25,13 @@ The following loss functions are defined for each method investigated in this pr
 - Ae-step:  
 - D-step: 
 
-$$
-  -\mathbb{E}_{x \sim p_{data}}[log(D_{\phi}(x))] -\mathbb{E}_{z \sim p_{z}}[log(1 - D_{\phi}(G_{\theta}(z)))] \to \min_{\phi}\quad(1)
-$$
+  $$
+    -\mathbb{E}_{x \sim p_{data}}[log(D_{\phi}(x))] -\mathbb{E}_{z \sim p_{z}}[log(1 - D_{\phi}(G_{\theta}(z)))] \to \min_{\phi}.\quad(1)
+  $$
 
 - G-step: 
 $$
-  -\mathbb{E}_{z \sim p_z} [log(D_{\phi}(G_{\theta}(z))] \to \min_{\theta}\quad(2)
+  -\mathbb{E}_{z \sim p_z} [log(D_{\phi}(G_{\theta}(z))] \to \min_{\theta}.\quad(2)
 $$
 
 2. **DistVanilaGAN** ([`trainers/dist_gan.py`](./trainers/dist_gan.py)):  
