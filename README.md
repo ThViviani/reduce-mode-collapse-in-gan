@@ -24,9 +24,11 @@ The following loss functions are defined for each method investigated in this pr
 1. **Standard GAN Loss** ([`trainers/standard_gan.py`](./trainers/standard_gan.py)):
 - Ae-step:  
 - D-step: 
+
 $$
   -\mathbb{E}_{x \sim p_{data}}[log(D_{\phi}(x))] -\mathbb{E}_{z \sim p_{z}}[log(1 - D_{\phi}(G_{\theta}(z)))] \to \min_{\phi}\quad(1)
 $$
+
 - G-step: 
 $$
   -\mathbb{E}_{z \sim p_z} [log(D_{\phi}(G_{\theta}(z))] \to \min_{\theta}\quad(2)
@@ -123,7 +125,10 @@ It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regular
 It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from DpGAN [2]
 - Ae-step:
 - D-step: $(8)$
-- G-step:$$\mathcal{L}_G^{RpGAN} + DP(z) \to \min_{\theta}.$$
+- G-step:
+$$
+  \mathcal{L}_G^{RpGAN} + DP(z) \to \min_{\theta}.
+$$
 
 14. **NeRpGAN** ([`trainers/neighbors_embedding_gan.py`](./trainers/neighbors_embedding_gan.py), use_r1r2_penalty=True):    
 It's RpGAN + R1,R2 grad penaltys for the Discriminator + Latent-distance regularization from GN-GAN [3]
