@@ -94,6 +94,7 @@ All variants of tested model variants combine one of two base trainer classes wi
 1. **2D - synthetic experiment [`notebooks/2d-synthetic-experiments.ipynb`](./notebooks/2d-synthetic-experiments.ipynb):**
 
 ![2D - synthetic experiment](/assets/2d.gif)
+
 50 000 points, 25 gaussians with var = 0.1, 500 epochs
 
 **Best epoch:**
