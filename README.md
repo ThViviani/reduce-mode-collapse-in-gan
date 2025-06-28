@@ -91,7 +91,29 @@ All variants of tested model variants combine one of two base trainer classes wi
 
 ## 📊 Results
 
-TODO
+1. **2D - synthetic experiment:**
+50 000 points, 25 gaussians with var = 0.1, 500 epochs
+![2D - synthetic experiment](/assets/2d.gif)
+
+**Best epoch:**
+| Group  |           Model         | Modes covered| Points in modes        |
+|--------|-------------------------|-------------:|-----------------------:|
+| 1      | StandardGAN             |           24 |                   1710 |
+| 1      | DistVanilaGAN           |           11 |                    715 |
+| 1      | DpVanilaGan             |            7 |                    469 |
+| 1      | NEVanilaGAN             |            3 |                    160 |
+| 1      | NEVanilaGAN_hat         |           25 |                   1870 |
+| 2      | RpGAN                   |           25 |                   1892 |
+| 2      | DistRpGAN               |           15 |                   1007 |
+| 2      | NERpGAN                 |            2 |                    163 |
+| 2      | DpRpGAN                 |           25 |                   1939 |
+| 2      | NERpGAN_hat             |           25 |                   1907 |
+| 3      | RpGAN+R1R2              |            5 |                    169 |
+| 3      | DistRpGAN+R1R2          |            1 |                     70 |
+| 3      | NERpGAN+R1R2            |            0 |                    148 |
+| 3      | DpRpGAN+R1R2            |            3 |                    148 |
+| 3      | NERpGAN_hat+R1R2        |            1 |                    985 |
+
 
 ## References
 [1] Tran N.-T., Bui T.-A., Cheung N.-M. Dist-GAN: An Improved GAN using Distance Constraints. URL: https://doi.org/10.48550/arXiv.1803.08887
