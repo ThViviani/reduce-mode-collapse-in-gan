@@ -95,7 +95,9 @@ All variants of tested model variants combine one of two base trainer classes wi
 
 ![2D - synthetic experiment](/assets/2d.gif)
 
-50 000 points, 25 gaussians with var = 0.1, 500 epochs
+50 000 points, 25 gaussians with var = 0.1, 500 epochs, seed=999
+
+**Mode Coverage Criteria: 20 points in the mode.**
 
 **Best epoch:**
 | Group  |           Model         | Modes covered| Points in modes        |
@@ -122,7 +124,9 @@ All variants of tested model variants combine one of two base trainer classes wi
 
 ![Stacked-MNIST experiment](/assets/stacked_mnist.gif)
 
-120 000 train, 20 000 test, 300 epochs. 
+120 000 train, 20 000 test, 300 epochs, seed=999. 
+
+**Mode Coverage Criteria: The pretrained classifier on MNIST must detect all digits with at least 99% confidence.**
 
 **Best epoch:**
 | Group  | Model                     |   IS ↑ |  Modes covered ↑ |    KL ↓ |
@@ -143,6 +147,31 @@ All variants of tested model variants combine one of two base trainer classes wi
 | 3      | NERpGAN+R1R2              |   1.68 |              102 |   18.95 |
 | 3      | DpRpGAN+R1R2              |   1.45 |               26 |   20.27 |
 
+**CIFAR-10 experiment [`notebooks/cifar10_experiments.ipynb`](./notebooks/cifar10_experiments.ipynb):**
+
+![CIFAR-10 experiment](/assets/CIFAR-10.gif)
+
+50 000 train, 10 000 test, 150 epochs, seed=999.
+
+**Best epoch:**
+| Group  | Model                     |   IS ↑ |   FID ↓ |
+|--------|---------------------------|-------:|--------:|
+| 1      | DpVanilaGAN               |   6.84 |   35.52 |
+| 1      | NEVanilaGAN               |   2.88 |  139.53 |
+| 1      | DistVanilaGAN             |   4.22 |   76.70 |
+| 1      | NEVanilaGAN_hat           |   6.41 |   38.52 |
+| 1      | StandardGAN               |   6.38 |   39.83 |
+| 2      | RpGAN                     |   6.75 |   34.16 |
+| 2      | NERpGAN_hat               |   6.82 |   33.26 |
+| 2      | DistRpGAN                 |   4.06 |   93.49 |
+| 2      | NERpGAN                   |   1.58 |   257.22|
+| 2      | DpRpGAN                   |   6.76 |   38.44 |
+| 3      | RpGAN_R1R2                |   6.28 |   41.18 |
+| 3      | NERpGAN_hat+R1R2          |   6.08 |   41.67 |
+| 3      | DistRpGAN+R1R2            |   5.40 |   57.22 |
+| 3      | NERpGAN+R1R2              |   1.63 |  266.17 |
+| 3      | DpRpGAN+R1R2              |   6.03 |   43.93 |
+
 
 ## References
 [1] Tran N.-T., Bui T.-A., Cheung N.-M. Dist-GAN: An Improved GAN using Distance Constraints. URL: https://doi.org/10.48550/arXiv.1803.08887
@@ -157,4 +186,4 @@ All variants of tested model variants combine one of two base trainer classes wi
 
 ---
 
-*Last updated: June 28, 2025*
+*Last updated: July 3, 2025*
