@@ -118,6 +118,37 @@ All variants of tested model variants combine one of two base trainer classes wi
 | 3      | DpRpGAN+R1R2            |            3 |                    148 |
 | 3      | NERpGAN_hat+R1R2        |            1 |                    985 |
 
+**MNIST experiment ['notebooks/mnist_experiments.ipynb'](./notebooks/mnist_experiments.ipynb):**
+
+![MNIST - experiment](/assets/MNIST.gif)
+
+50 000 train, 10 000 test, 50 epochs, 5 runs with differenet seeds.
+
+
+**Mode Coverage Criteria: The pretrained classifier on MNIST must detect digits with at least 99% confidence.**
+
+**Mean of 5 runs on the best epoch:**
+| Group  | Model                 | IS ↑           | FID ↓   | Modes covered ↑| KL ↓   |
+|--------|-----------------------|----------------|---------|----------------|--------|
+| 1      | DpVanillaGAN          | 2.12 ±0.02     | 12.51   | 10             | 0.96   |
+|        | NEVanillaGAN          | 2.02 ±0.02     | 19.89   | 10             | 1.03   |
+|        | DistVanillaGAN        | 1.98 ±0.02     | 18.99   | 10             | 0.86   |
+|        | NEVanillaGAN_hat      | 2.09 ±0.03     | 17.61   | 10             | 1.08   |
+|        | StandardGAN           | 2.11 ±0.03     | 15.87   | 10             | 0.96   |
+| 2      | RpGAN                 | 1.98 ±0.03     | 19.31   | 10             | 1.03   |
+|        | NErpGAN_hat           | 2.10 ±0.02     | 21.98   | 10             | 1.10   |
+|        | DistRpGAN             | 1.98 ±0.02     | 21.32   | 10             | 1.01   |
+|        | NErpGAN               | 2.03 ±0.03     | 24.12   | 10             | 1.10   |
+|        | DpRpGAN               | 2.09 ±0.02     | 18.95   | 10             | 1.16   |
+| 3      | NErpGAN_hat+R1R2      | 2.05 ±0.02     | 65.31   | 9.2            | 3.03   |
+|        | DistRpGAN+R1R2        | 2.07 ±0.02     | 14.38   | 10             | 0.77   |
+|        | NErpGAN+R1R2          | 2.11 ±0.02     | 14.76   | 10             | 0.82   |
+|        | DpRpGAN+R1R2          | 1.37 ±0.01     | 366.29  | 2              | 20.11  |
+|        | RpGAN_R1R2            | 2.14 ±0.03     | 8.08    | 10             | 0.74   |
+|        | RpGAN_R1R2            | 2.16 ±0.02     | 7.80    | 10             | 0.75   |
+| 4      | NErpGAN+R1R2          | 2.17 ±0.03     | 7.57    | 10             | 0.77   |
+
+
 **Stacked-MNIST experiment [`notebooks/stacked_mnist_experiments.ipynb`](./notebooks/stacked_mnist_experiments.ipynb):**
 
   Dataset builder: [`dataset_builders/stacked_mnist.py`](./dataset_builders/stacked_mnist.py) 
